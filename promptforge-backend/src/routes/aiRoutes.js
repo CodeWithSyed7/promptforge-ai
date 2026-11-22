@@ -1,0 +1,12 @@
+const express = require('express');
+const router = express.Router();
+const { authMiddleware } = require('../middleware/authMiddleware');
+const { generationLimiter, chatLimiter } = require('../middleware/rateLimiter');
+const controller = require('../controllers/aiController');
+router.use(authMiddleware);
+router.post('/generate-prompt', generationLimiter, controller.generatePrompt);
+router.post('/generate-with-agent', generationLimiter, controller.generateWithAgent);
+router.post('/generate-video', generationLimiter, controller.generateVideoScript);
+router.post('/chat', chatLimiter, controller.chat);
+router.get('/agents', controller.getAgents);
+module.exports = router;

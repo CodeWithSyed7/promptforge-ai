@@ -1,79 +1,73 @@
-# PromptForge AI
+# React + TypeScript + Vite
 
-**An AI-powered workspace for prompt engineering, intelligent chat, specialized agents, and creative workflows.**
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-PromptForge brings prompt creation, AI conversations, agent-assisted tasks, and video-script workflows into one focused interface.
+Currently, two official plugins are available:
 
-## Source archive audit
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-See [PROJECT_AUDIT.md](PROJECT_AUDIT.md) for the analysis of both supplied ZIP exports, the actual source/build distinction, and the integration issues that must be addressed before production.
+## React Compiler
 
-## Repository contents
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-- Root-level HTML, CSS, JavaScript bundle, icons, and web-app manifest: the exported frontend build.
-- `promptforge-backend/`: Node.js + Express API source, middleware, routes, AI services, and setup documentation.
-- `LICENSE`: MIT.
+## Expanding the ESLint configuration
 
-The original Kimi ZIP also contained the editable React + TypeScript frontend source. That source folder is not currently tracked in this repository; only the built frontend files are present. The backend source has been added from the project export and reorganized with safer authentication and API configuration.
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-## Backend capabilities
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-- AI prompt generation
-- Specialized AI agents
-- AI chat
-- Video script generation
-- User-scoped history and settings endpoints
-- Gemini API integration
-- Rate limiting and security headers
-- Firebase ID-token verification support
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-## Requirements
-
-- Node.js 20 or newer
-- npm
-- Google Gemini API key
-
-## Run the backend
-
-```bash
-cd promptforge-backend
-npm install
-cp .env.example .env
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-Add your Gemini API key to `promptforge-backend/.env`, then run:
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```bash
-npm run dev
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-Health endpoint: `http://localhost:5000/health`.
-
-For local frontend development, configure `VITE_API_URL=http://localhost:5000/api` in the frontend environment.
-
-## Authentication
-
-In local development only, `ALLOW_DEMO_AUTH=true` accepts the legacy `x-user-id` header used by the exported frontend. This header is spoofable and is not secure authentication.
-
-For production, set `ALLOW_DEMO_AUTH=false`, configure Firebase Admin credentials using the backend environment variables, and send a verified Firebase ID token in the `Authorization: Bearer <token>` header. The current exported frontend still needs its auth client updated to send Firebase ID tokens before this production mode can be used.
-
-## Storage and production readiness
-
-The included JSON-file storage is a local prototype. It is not suitable for concurrent production workloads or ephemeral/serverless hosting. Migrate the data service to Firestore or another managed database before production. Also configure HTTPS, strict CORS origins, monitoring, backups, and provider quotas.
-
-Do not commit real API keys, Firebase service-account JSON, or production secrets. Never expose provider keys through `VITE_*` variables.
-
-## Technology
-
-- Frontend build: HTML, CSS, JavaScript bundle
-- Backend: Node.js, Express
-- AI: Google Gemini API
-- Authentication integration: Firebase Admin token verification (server-side)
-
-## License
-
-MIT. See [LICENSE](LICENSE).
-
-## Maintainer
-
-[CodeWithSyed7](https://github.com/CodeWithSyed7)

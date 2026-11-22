@@ -2,10 +2,14 @@ const gemini = require('../services/geminiService');
 const engine = require('../services/promptEngineService');
 const db = require('../services/databaseService');
 
-const safeOptions = (settings = {}) => ({
-  temperature: Math.min(1, Math.max(0, Number(settings.temperature ?? 0.7))),
-  maxOutputTokens: Math.min(8192, Math.max(128, Number(settings.maxTokens ?? 2048))),
-});
+const safeOptions = (settings = {}) => {
+  const rawTemperature = Number(settings.temperature ?? 0.7);
+  const rawTokens = Number(settings.maxTokens ?? 2048);
+  return {
+    temperature: Math.min(1, Math.max(0, Number.isFinite(rawTemperature) ? rawTemperature : 0.7)),
+    maxOutputTokens: Math.min(8192, Math.max(128, Number.isFinite(rawTokens) ? Math.round(rawTokens) : 2048)),
+  };
+};
 const text = (value) => typeof value === 'string' ? value.trim() : '';
 
 async function save(req, type, input, output, agent) {

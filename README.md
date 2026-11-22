@@ -4,6 +4,10 @@
 
 PromptForge brings prompt creation, AI conversations, agent-assisted tasks, and video-script workflows into one focused interface.
 
+## Source archive audit
+
+See [PROJECT_AUDIT.md](PROJECT_AUDIT.md) for the analysis of both supplied ZIP exports, the actual source/build distinction, and the integration issues that must be addressed before production.
+
 ## Repository contents
 
 - Root-level HTML, CSS, JavaScript bundle, icons, and web-app manifest: the exported frontend build.

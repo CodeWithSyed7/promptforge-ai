@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../services/databaseService');
+const { authMiddleware } = require('../middleware/authMiddleware');
+router.use(authMiddleware);
+router.get('/', async (req, res, next) => { try { const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20)); const offset = Math.max(0, Number(req.query.offset) || 0); res.json(await db.getHistory(req.userId, limit, offset)); } catch (e) { next(e); } });
+router.delete('/:id', async (req, res, next) => { try { const success = await db.deleteHistory(req.userId, req.params.id); res.json({ success }); } catch (e) { next(e); } });
+router.get('/export', async (req, res, next) => { try { const format = req.query.format === 'txt' ? 'txt' : 'json'; const content = await db.exportHistory(req.userId, format); res.type(format === 'txt' ? 'text/plain' : 'application/json').send(content); } catch (e) { next(e); } });
+router.get('/usage', async (req, res, next) => { try { res.json({ usage: { dailyCount: await db.getDailyUsage(req.userId) } }); } catch (e) { next(e); } });
+module.exports = router;

@@ -4,62 +4,32 @@
 
 PromptForge brings prompt creation, AI conversations, agent-assisted tasks, and video-script workflows into one focused interface.
 
-> **Repository status:** The original Kimi export contains a React + TypeScript + Vite frontend and an Express backend. The backend is a starter implementation, not a production-ready service. Authentication, persistent cloud storage, provider management, and deployment configuration must be completed and verified before public production use.
+## Repository contents
 
-## Project structure
+- Root-level HTML, CSS, JavaScript bundle, icons, and web-app manifest: the exported frontend build.
+- `promptforge-backend/`: Node.js + Express API source, middleware, routes, AI services, and setup documentation.
+- `LICENSE`: MIT.
 
-```text
-.
-├── app/                    # React + TypeScript + Vite frontend source
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── vite.config.ts
-├── promptforge-backend/    # Node.js + Express API
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── routes/
-│   │   └── services/
-│   ├── .env.example
-│   ├── package.json
-│   └── server.js
-└── README.md
-```
+The original Kimi ZIP also contained the editable React + TypeScript frontend source. That source folder is not currently tracked in this repository; only the built frontend files are present. The backend source has been added from the project export and reorganized with safer authentication and API configuration.
 
-## Main capabilities in the supplied frontend/backend export
+## Backend capabilities
 
 - AI prompt generation
 - Specialized AI agents
 - AI chat
 - Video script generation
-- Conversation and generation history
-- User settings and usage tracking
+- User-scoped history and settings endpoints
 - Gemini API integration
-- Responsive React interface
-
-Feature availability depends on frontend wiring and valid backend configuration. Some account and storage flows in the supplied frontend are local/demo flows.
+- Rate limiting and security headers
+- Firebase ID-token verification support
 
 ## Requirements
 
 - Node.js 20 or newer
 - npm
-- A Google Gemini API key for AI generation
+- Google Gemini API key
 
-## Run locally
-
-### 1. Frontend
-
-```bash
-cd app
-npm install
-cp .env.example .env
-npm run dev
-```
-
-Set `VITE_API_URL=http://localhost:5000/api` in `app/.env`.
-
-### 2. Backend
+## Run the backend
 
 ```bash
 cd promptforge-backend
@@ -73,26 +43,28 @@ Add your Gemini API key to `promptforge-backend/.env`, then run:
 npm run dev
 ```
 
-The API health endpoint is `http://localhost:5000/health`.
+Health endpoint: `http://localhost:5000/health`.
 
-## Environment variables
+For local frontend development, configure `VITE_API_URL=http://localhost:5000/api` in the frontend environment.
 
-See [promptforge-backend/.env.example](promptforge-backend/.env.example). Never commit real API keys, Firebase service-account JSON, or production secrets.
+## Authentication
 
-## Important security and deployment notes
+In local development only, `ALLOW_DEMO_AUTH=true` accepts the legacy `x-user-id` header used by the exported frontend. This header is spoofable and is not secure authentication.
 
-- Do not expose Gemini or other provider API keys in browser code.
-- The original frontend uses a demo/local identity header. That is not secure authentication. Production deployments must use verified Firebase ID tokens (or another trusted identity provider).
-- The supplied JSON-file data service is for local development only. It is not safe for concurrent production workloads or ephemeral hosting. Use Firestore or another managed database before production.
-- Configure a strict `FRONTEND_URL`, HTTPS, rate limits, request validation, logging, and backups before launch.
-- Do not advertise authentication, cloud sync, subscriptions, or multi-provider support as complete until those flows are implemented and tested.
+For production, set `ALLOW_DEMO_AUTH=false`, configure Firebase Admin credentials using the backend environment variables, and send a verified Firebase ID token in the `Authorization: Bearer <token>` header. The current exported frontend still needs its auth client updated to send Firebase ID tokens before this production mode can be used.
+
+## Storage and production readiness
+
+The included JSON-file storage is a local prototype. It is not suitable for concurrent production workloads or ephemeral/serverless hosting. Migrate the data service to Firestore or another managed database before production. Also configure HTTPS, strict CORS origins, monitoring, backups, and provider quotas.
+
+Do not commit real API keys, Firebase service-account JSON, or production secrets. Never expose provider keys through `VITE_*` variables.
 
 ## Technology
 
-- Frontend: React, TypeScript, Vite, Tailwind CSS
+- Frontend build: HTML, CSS, JavaScript bundle
 - Backend: Node.js, Express
 - AI: Google Gemini API
-- UI: Radix UI and Lucide React
+- Authentication integration: Firebase Admin token verification (server-side)
 
 ## License
 
@@ -100,4 +72,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Maintainer
 
-Built and maintained by [CodeWithSyed7](https://github.com/CodeWithSyed7).
+[CodeWithSyed7](https://github.com/CodeWithSyed7)

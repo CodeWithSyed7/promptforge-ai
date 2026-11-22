@@ -1,46 +1,29 @@
-# PromptForge Source Archive Audit
+# PromptForge Repository Audit
 
-Reviewed the two supplied Kimi ZIP exports on 22 November 2026.
+Updated 22 November 2026 after inspecting the GitHub tree and the ten files supplied in this conversation.
 
-## Which archive contains the source?
+## Repository contents
 
-### `Kimi_Agent_PromptForge Mobile App.zip`
+- Existing backend source: Express routes/controllers, Gemini service, JSON-file storage, Firebase Admin token-verification middleware, and rate limiting.
+- Newly added compiled web bundle under `promptforge-backend/public/`, including uploaded HTML/CSS/JS, manifest, existing 192px/512px icons, and service worker.
+- Newly added reusable UI components under `app/src/components/ui/`.
 
-This is the full editable project export: 106 files, approximately 3.11 MiB uncompressed.
+## Fixes applied
 
-It contains:
-- `app/`: React 19 + TypeScript + Vite frontend source, screens, contexts, API client, UI components, assets, and npm lockfile.
-- `promptforge-backend/`: Express API source, controllers, middleware, routes, Gemini service, prompt-engine service, and JSON-file data service.
+1. Placed the uploaded CSS and JavaScript at the exact `./assets/` paths referenced by the uploaded HTML.
+2. Replaced the compiled bundle's hard-coded `http://localhost:5000/api` endpoint with same-origin `/api`.
+3. Updated the manifest to reference only the two icon sizes verified in the repository.
+4. Added service-worker registration and app-shell caching.
+5. Updated the Express server to serve the compiled web app and API from one origin.
+6. Replaced the generic starter README with actual setup and limitation notes.
 
-### `Kimi_Agent_Deployment_PromptForge Mobile App_v4.zip`
+## Release blockers
 
-This is a deployment/build export: 6 files, approximately 1.44 MiB uncompressed. It contains the compiled HTML/CSS/JavaScript bundle, icons, and web manifest. It does not contain the editable React/TypeScript source or backend source.
+- The uploaded ten files did not include the complete React/Vite source tree. Six TSX files are individual reusable components only.
+- The compiled frontend sends `x-user-id: default`; production middleware requires a verified Firebase ID token. Do not enable demo auth in production. Firebase client authentication must be integrated and the frontend rebuilt.
+- The backend uses local JSON files. Replace with Firestore or another managed database before multi-instance/serverless production.
+- No live deployment, Gemini key, Firebase credentials, or APK signing/build configuration were supplied. Those have not been tested.
 
-## Source architecture
+## Local development
 
-- Frontend: React 19, TypeScript, Vite 7, Tailwind CSS, Radix UI.
-- Backend: Node.js, Express, Gemini SDK.
-- Frontend API client: `app/src/services/apiService.ts`.
-- Backend API prefixes: `/api/ai`, `/api/history`, `/api/settings`.
-- Health check: `/health`.
-
-## Integration issues found in the source archive
-
-1. The frontend API client sends a fixed `x-user-id: default` header. The supplied backend middleware trusts this header and does not verify a user token. This is demo-only authentication, not production authentication.
-2. The backend stores users, history, and settings in local JSON files. This is not a safe multi-instance production database.
-3. The Gemini service uses a hard-coded `gemini-pro` model and initializes the SDK at module load. The model should be configurable and initialization should fail gracefully when the key is absent.
-4. The original history delete controller calls the data service without a user ID, so ownership is not enforced at deletion time.
-5. The frontend's API response types and backend response envelopes need a full contract check before release, especially history, usage, chat, and video-script responses.
-6. The frontend source archive is not the same thing as the compiled deployment bundle. Keep the editable source under `app/` and the build output separate.
-
-## Repository state note
-
-The root currently contains the deployment bundle and a separately added backend implementation. The backend currently in the repository is not a byte-for-byte copy of the backend in the supplied source ZIP. Do not assume it is already the fully integrated original project.
-
-## Recommended next steps
-
-1. Add the complete `app/` source tree from the first ZIP.
-2. Restore and review the original backend controllers and service files from the same ZIP, then apply security and compatibility fixes deliberately.
-3. Update the frontend API client to obtain and send verified Firebase ID tokens before enabling production auth.
-4. Replace JSON-file persistence with Firestore or another managed database before production deployment.
-5. Run frontend build/lint and backend API tests, then verify all screens against the deployed API.
+In `promptforge-backend/`, run `npm install`, set `GEMINI_API_KEY`, set `NODE_ENV=development` and `ALLOW_DEMO_AUTH=true` only for local testing, then run `npm run dev`. Open http://localhost:5000.

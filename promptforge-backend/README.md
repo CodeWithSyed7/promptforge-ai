@@ -1,17 +1,17 @@
 # PromptForge Backend
 
-Express API for PromptForge's React client.
+Express API and same-origin static web host for PromptForge.
 
 ## Setup
 
 ```bash
 npm install
 cp .env.example .env
-# Add GEMINI_API_KEY to .env
+# Set GEMINI_API_KEY
 npm run dev
 ```
 
-Health: `GET /health`
+Open http://localhost:5000. The compiled frontend is served from `public/`; API health is `GET /health`.
 
 ## API
 
@@ -28,16 +28,14 @@ Health: `GET /health`
 - `PUT /api/settings`
 - `POST /api/settings/reset`
 
-## Authentication modes
+## Authentication
 
-For local UI development only, `ALLOW_DEMO_AUTH=true` accepts `x-user-id`. This is spoofable and must never be enabled in production.
+For local testing only, use `NODE_ENV=development` and `ALLOW_DEMO_AUTH=true`. This accepts the demo `x-user-id` header and is not secure.
 
-For production, set `ALLOW_DEMO_AUTH=false` and configure Firebase Admin credentials. Send `Authorization: Bearer <Firebase ID token>`; the middleware verifies the token and derives the user ID from its verified UID.
+Production requires Firebase Admin credentials and a frontend that sends `Authorization: Bearer <Firebase ID token>`. The supplied compiled UI still sends the demo header, so Firebase client authentication must be integrated before production API access.
 
-## Storage limitation
+## Storage
 
-The bundled JSON-file store is only a local prototype. Use Firestore or another managed database for production. Do not deploy the JSON store to serverless/ephemeral hosting.
+The JSON-file store is for local development or a single persistent server only. Use Firestore or another managed database for multi-instance/serverless production.
 
-## Secrets
-
-Keep `.env` out of Git. Use the hosting provider's secret manager in deployed environments.
+Keep `.env` out of Git and configure secrets in your hosting provider.
